@@ -1,7 +1,6 @@
 local lsp_zero = require('lsp-zero')
 
 lsp_zero.preset("recommended")
-
 lsp_zero.set_preferences({
     suggest_lsp_servers = false,
     sign_icons = {
@@ -12,9 +11,7 @@ lsp_zero.set_preferences({
     }
 })
 
-local cmp = require('cmp')
-
-lsp_zero.on_attach(function(client, bufnr)
+lsp_zero.on_attach(function(_, bufnr)
   -- see :help lsp-zero-keybindings
   -- to learn the available actions
   lsp_zero.default_keymaps({buffer = bufnr})
