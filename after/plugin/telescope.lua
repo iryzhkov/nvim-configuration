@@ -1,5 +1,8 @@
 require('telescope').setup({
-    defaults = { initial_mode = "insert" }
+    defaults = {
+        initial_mode = "insert",
+        path_display = "truncate",
+    }
 })
 local builtin = require('telescope.builtin')
 
