@@ -1,3 +1,3 @@
-# NeoVim configuration
+# My NeoVim configuration for 2024
 
-Based on [ThePrimeagen](https://github.com/ThePrimeagen/init.lua)
+Based on [ThePrimeagen's NeoVim config](https://github.com/ThePrimeagen/init.lua)
