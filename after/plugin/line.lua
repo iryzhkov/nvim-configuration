@@ -5,9 +5,9 @@ require('lualine').setup({
         section_separators = { left = '', right = '' },
 
         refresh = {
-            statusline = 200,
-            tabline = 1000,
-            winbar = 1000,
+            statusline = 50,
+            tabline = 200,
+            winbar = 200,
         },
     },
     sections = {
