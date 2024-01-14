@@ -43,7 +43,7 @@ ls.add_snippets("all", {
     s({
         trig = "trig",
         name = "my_snippet",
-        desc = "this is a long description of my snippet"
+        desc = "this is a long description of my snippet",
     }, {
         -- equivalent to "${1:cond} ? ${2:then} : ${3:else}"
         i(1, "cond"), t(" ? "), i(2, "then"), t(" : "), i(3, "else")

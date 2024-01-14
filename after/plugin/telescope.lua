@@ -18,7 +18,7 @@ local builtin = require('telescope.builtin')
 
 vim.keymap.set('n', '<leader>b', builtin.buffers, {})
 vim.keymap.set('n', '<leader>pf', builtin.find_files, {})
-vim.keymap.set('n', '<leader>r', builtin.resume, {})
+vim.keymap.set('n', '<leader>rs', builtin.resume, {})
 vim.keymap.set('n', '<leader>vh', builtin.help_tags, {})
 
 -- complex mappings
