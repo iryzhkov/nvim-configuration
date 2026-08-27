@@ -1,5 +1,3 @@
-local lspconfig = require('lspconfig')
-
 -- Global mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
@@ -40,33 +38,25 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 -- Mason set-up
+--
+-- mason-lspconfig v2 dropped `setup_handlers`. With Neovim 0.11+ it now calls
+-- `vim.lsp.enable()` for every installed server automatically, so per-server
+-- settings go through `vim.lsp.config` instead of a handler table.
 require('mason').setup({})
 require('mason-lspconfig').setup({
     ensure_installed = {},
-    handlers = {},
 })
 
-require("mason-lspconfig").setup_handlers {
-    -- The first entry (without a key) will be the default handler
-    -- and will be called for each installed server that doesn't have
-    -- a dedicated handler.
-    function(server_name) -- default handler (optional)
-        require("lspconfig")[server_name].setup {}
-    end,
-
-    -- make sure lua doesn't highlight vim as unknown
-    ["lua_ls"] = function()
-        lspconfig.lua_ls.setup {
-            settings = {
-                Lua = {
-                    diagnostics = {
-                        globals = { "vim" }
-                    }
-                }
+-- make sure lua doesn't highlight vim as unknown
+vim.lsp.config('lua_ls', {
+    settings = {
+        Lua = {
+            diagnostics = {
+                globals = { "vim" }
             }
         }
-    end,
-}
+    }
+})
 
 
 -- linter set-up
