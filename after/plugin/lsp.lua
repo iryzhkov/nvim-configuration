@@ -1,10 +1,16 @@
 -- Global mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+-- `vim.diagnostic.goto_prev/goto_next` are deprecated (removal in 0.13);
+-- `jump` replaces them. `float = true` keeps the old auto-float behaviour.
+vim.keymap.set('n', '[d', function()
+    vim.diagnostic.jump { count = -1, float = true }
+end)
+vim.keymap.set('n', ']d', function()
+    vim.diagnostic.jump { count = 1, float = true }
+end)
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setqflist)
-vim.keymap.set("n", "<leader>ff", vim.lsp.buf.format)
+
 
 -- Use LspAttach autocommand to only map the following keys
 -- after the language server attaches to the current buffer
@@ -37,6 +43,19 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
+-- lazydev feeds lua_ls the Neovim runtime + plugin type definitions on demand,
+-- so `vim.*` and `require "telescope.builtin"` resolve instead of being `unknown`.
+-- Must run before lua_ls attaches.
+local ok_lazydev, lazydev = pcall(require, 'lazydev')
+if ok_lazydev then
+    lazydev.setup {
+        library = {
+            -- vim.uv is a separate meta definition
+            { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+        },
+    }
+end
+
 -- Mason set-up
 --
 -- mason-lspconfig v2 dropped `setup_handlers`. With Neovim 0.11+ it now calls
@@ -47,10 +66,25 @@ require('mason-lspconfig').setup({
     ensure_installed = {},
 })
 
+-- Advertise nvim-cmp's completion capabilities to every server. `vim.lsp.config`
+-- with '*' merges into all configs, including the ones mason-lspconfig enables.
+local ok_cmp_lsp, cmp_lsp = pcall(require, 'cmp_nvim_lsp')
+if ok_cmp_lsp then
+    vim.lsp.config('*', {
+        capabilities = cmp_lsp.default_capabilities(),
+    })
+end
+
 -- make sure lua doesn't highlight vim as unknown
 vim.lsp.config('lua_ls', {
     settings = {
         Lua = {
+            completion = {
+                -- Expand a completed function into a call snippet with the
+                -- parameters as jumpable placeholders (<C-L>/<C-J> to move).
+                -- "Replace" = one item, the snippet; "Both" = plain + snippet.
+                callSnippet = "Replace",
+            },
             diagnostics = {
                 globals = { "vim" }
             }

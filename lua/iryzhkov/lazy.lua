@@ -1,0 +1,83 @@
+-- lazy.nvim bootstrap + plugin spec (replaces the old packer.lua).
+--
+-- Plugin *configuration* still lives in after/plugin/*.lua. Nothing here is
+-- lazy-loaded, so every plugin is on the runtimepath by the time those files
+-- are sourced, exactly as it worked under packer.
+
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local out = vim.fn.system({
+        "git", "clone", "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable", lazypath,
+    })
+    if vim.v.shell_error ~= 0 then
+        error("Failed to clone lazy.nvim:\n" .. out)
+    end
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+    -- nvim look
+    'kyazdani42/nvim-web-devicons',
+    'nvim-lualine/lualine.nvim',
+
+    -- telescope
+    {
+        'nvim-telescope/telescope.nvim',
+        -- NOT a tagged release: every tag through 0.1.7 calls the removed
+        -- `nvim-treesitter.parsers.ft_to_lang`. master uses
+        -- `vim.treesitter.language.get_lang`. Needs nvim >= 0.11.7.
+        branch = 'master',
+        dependencies = { 'nvim-lua/plenary.nvim' },
+    },
+    { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+    'camgraff/telescope-tmux.nvim',
+
+    -- harpoon
+    'theprimeagen/harpoon',
+
+    -- treesitter
+    {
+        'nvim-treesitter/nvim-treesitter',
+        -- after/plugin/treesitter.lua is written against the `main` rewrite
+        -- (ts.setup/get_installed/install, no `configs` module). Pinned so a
+        -- change to the repo's default branch can't silently break it.
+        branch = 'main',
+        build = ':TSUpdate',
+    },
+
+    -- lsp
+    'neovim/nvim-lspconfig',
+    -- feeds lua_ls the Neovim runtime + plugin type definitions
+    'folke/lazydev.nvim',
+    'williamboman/mason.nvim',
+    'williamboman/mason-lspconfig.nvim',
+
+    -- completion
+    'hrsh7th/cmp-buffer',
+    'hrsh7th/cmp-nvim-lsp',
+    'hrsh7th/cmp-path',
+    'hrsh7th/nvim-cmp',
+    'onsails/lspkind.nvim',
+
+    -- snippets
+    {
+        'L3MON4D3/LuaSnip',
+        version = 'v2.*',
+        build = 'make install_jsregexp',
+    },
+    'saadparwaiz1/cmp_luasnip',
+
+    -- version control
+    'tpope/vim-fugitive',
+    'mbbill/undotree',
+}, {
+    change_detection = { notify = false },
+    performance = {
+        rtp = {
+            -- `<leader>pv` opens netrw (vim.cmd.Ex), so it must stay enabled.
+            disabled_plugins = { 'gzip', 'tarPlugin', 'tohtml', 'tutor', 'zipPlugin' },
+        },
+    },
+})

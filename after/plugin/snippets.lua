@@ -32,9 +32,17 @@ vim.keymap.set({ "i" }, "<C-K>", function() ls.expand() end, { silent = true })
 vim.keymap.set({ "i", "s" }, "<C-L>", function() ls.jump(1) end, { silent = true })
 vim.keymap.set({ "i", "s" }, "<C-J>", function() ls.jump(-1) end, { silent = true })
 
+-- <C-E> is shared with nvim-cmp's abort. after/plugin loads alphabetically, so
+-- this file runs after completion.lua and would otherwise silently clobber it.
+-- Chain the two: cycle snippet choices when one is active, else dismiss cmp.
 vim.keymap.set({ "i", "s" }, "<C-E>", function()
     if ls.choice_active() then
         ls.change_choice(1)
+        return
+    end
+    local ok, cmp = pcall(require, "cmp")
+    if ok and cmp.visible() then
+        cmp.abort()
     end
 end, { silent = true })
 

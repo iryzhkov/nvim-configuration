@@ -22,7 +22,7 @@ vim.keymap.set("n", "Q", "<nop>")
 -- this should go in the lsp.lua
 -- vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
 
-vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/iryzhkov/packer.lua<CR>");
+vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/iryzhkov/lazy.lua<CR>");
 
 vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd("so")

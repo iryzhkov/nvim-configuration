@@ -4,6 +4,10 @@ if not ok then
 end
 
 lspkind.init {
+    -- lspkind declares every SymbolMap field as required
+    -- (`---@field Class string`, not `Class?`), but overriding a single
+    -- icon is its documented usage.
+    ---@diagnostic disable-next-line: missing-fields
     symbol_map = {
         Copilot = "",
     },
@@ -49,6 +53,8 @@ cmp.setup {
         },
 
         -- ["<tab>"] = false,
+        -- cmp.config.disable is vim.NIL, which cmp's own mapping type omits.
+        ---@diagnostic disable-next-line: assign-type-mismatch
         ["<tab>"] = cmp.config.disable,
     },
 
@@ -60,7 +66,8 @@ cmp.setup {
     --        max_item_count
     --        (more?)
     sources = cmp.config.sources({
-        { name = "nvim_lua" },
+        -- group_index 0 => skip LuaLS completions for `require "..."`
+        { name = "lazydev", group_index = 0 },
         { name = "nvim_lsp" },
         { name = "luasnip" },
     }, {
@@ -69,6 +76,7 @@ cmp.setup {
     }),
 
     sorting = {
+        priority_weight = 2, -- cmp's default; stated so the table type-checks
         comparators = {
             cmp.config.compare.offset,
             cmp.config.compare.exact,
@@ -109,7 +117,7 @@ cmp.setup {
             menu = {
                 buffer = "[buf]",
                 nvim_lsp = "[LSP]",
-                nvim_lua = "[api]",
+                lazydev = "[lazy]",
                 path = "[path]",
                 luasnip = "[snip]",
             },
