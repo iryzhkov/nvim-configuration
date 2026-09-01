@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Re-theme every running Neovim instance after `omarchy theme set`.
+# The config's lua/iryzhkov/theme.lua re-reads the theme's generated
+# neovim.lua and re-applies the colorscheme; new instances do this at startup.
+
+for server in "${XDG_RUNTIME_DIR:-/run/user/$UID}"/nvim.*; do
+  [[ -S $server ]] || continue
+  timeout 2 nvim --server "$server" --remote-expr 'luaeval("require(\"iryzhkov.theme\").reload() or 1")' >/dev/null 2>&1 || true
+done

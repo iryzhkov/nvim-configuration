@@ -1,21 +1,20 @@
--- No Neovim-specific colorscheme: colors come from the terminal, which Omarchy
--- themes globally (`omarchy theme set <name>`). Switching the global theme
--- retheme Neovim too, with no config change here.
---
--- This requires `termguicolors = false` (see lua/iryzhkov/set.lua) so Neovim
--- renders through the terminal's 16-colour ANSI palette instead of hardcoded
--- 24-bit values.
+-- Colors come from the current Omarchy theme (`omarchy theme set <name>`),
+-- whose generated colorscheme spec is loaded by lua/iryzhkov/theme.lua.
+-- Running instances keep the old colors; new ones pick up the new theme.
 
-local function inherit_terminal_colors()
-    -- Let the terminal background show through instead of Neovim painting its own.
+local theme = require("iryzhkov.theme")
+
+local function inherit_terminal_background()
+    -- Let the terminal background show through instead of Neovim painting its
+    -- own, so the terminal's opacity rule still applies.
     for _, group in ipairs({ "Normal", "NormalNC", "NormalFloat", "SignColumn", "EndOfBuffer" }) do
-        vim.api.nvim_set_hl(0, group, { ctermbg = "NONE", bg = "NONE" })
+        vim.api.nvim_set_hl(0, group, { bg = "NONE" })
     end
 end
 
 vim.api.nvim_create_autocmd("ColorScheme", {
-    group = vim.api.nvim_create_augroup("InheritTerminalColors", { clear = true }),
-    callback = inherit_terminal_colors,
+    group = vim.api.nvim_create_augroup("InheritTerminalBackground", { clear = true }),
+    callback = inherit_terminal_background,
 })
 
-inherit_terminal_colors()
+theme.apply()

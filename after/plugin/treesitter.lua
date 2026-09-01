@@ -4,20 +4,16 @@ ts.setup {}
 
 -- Parsers to keep installed. The `main` branch has no `auto_install`, so we
 -- install anything missing at startup instead (a no-op once they are present).
-local ensure_installed = {
-    "bash",
-    "lua",
-    "markdown",
-    "python",
-    "vimdoc",
-}
+-- setup.sh installs the same list synchronously and sets `g:nvim_setup` so the
+-- two do not race on the same parser.
+local ensure_installed = require("iryzhkov.deps").parsers
 
 local installed = ts.get_installed("parsers")
 local missing = vim.tbl_filter(function(lang)
     return not vim.tbl_contains(installed, lang)
 end, ensure_installed)
 
-if #missing > 0 then
+if #missing > 0 and not vim.g.nvim_setup then
     ts.install(missing)
 end
 

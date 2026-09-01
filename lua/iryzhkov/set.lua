@@ -17,7 +17,7 @@ vim.opt.undofile = true
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
-vim.opt.termguicolors = false -- inherit the terminal (Omarchy global theme) palette
+vim.opt.termguicolors = true -- Omarchy theme colorschemes are 24-bit (see theme.lua)
 
 vim.opt.scrolloff = 8
 vim.opt.signcolumn = "yes"
