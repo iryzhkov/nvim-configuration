@@ -75,6 +75,12 @@ if ok_cmp_lsp then
     })
 end
 
+-- clangd comes from the system `clang` package (Mason ships no aarch64 Linux
+-- build), so mason-lspconfig does not know about it and it is enabled here.
+if vim.fn.executable('clangd') == 1 then
+    vim.lsp.enable('clangd')
+end
+
 -- make sure lua doesn't highlight vim as unknown
 vim.lsp.config('lua_ls', {
     settings = {

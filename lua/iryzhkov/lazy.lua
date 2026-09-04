@@ -77,6 +77,40 @@ require("lazy").setup({
     -- version control
     'tpope/vim-fugitive',
     'mbbill/undotree',
+
+    -- agent99: agentic edits with LSP-backed tools (github.com/iryzhkov/agent99).
+    -- Keymaps live in opts.keymaps so they are easy to look up here;
+    -- provider presets: deepseek (default), openai, openrouter, ollama, claude.
+    {
+        'iryzhkov/agent99',
+        build = 'make build',
+        opts = {
+            -- claude runs on the Max subscription (no per-token cost); the chat
+            -- panel cannot use it (no transcript from claude -p) and falls back
+            -- to chat_provider automatically (deepseek key: keyring, :Agent99SetKey).
+            provider = 'claude',
+            chat_provider = 'deepseek',
+            -- Apply edits directly instead of opening a confirmation preview.
+            preview = false,
+            keymaps = {
+                auto = '<leader>99',            -- x: compose, model infers edit/ask
+                compose = '<leader>99',         -- n: reopen compose draft
+                edit = '<leader>9e',            -- x: compose, hardcoded edit
+                ask = '<leader>9a',             -- x: compose, hardcoded ask
+                chat = '<leader>9c',            -- n: toggle chat panel
+                chat_selection = '<leader>9c',  -- x: panel with selection as context
+                followup = '<leader>9f',        -- n: follow up on last edit/answer
+                cancel = '<leader>9x',          -- n: cancel request
+                history = '<leader>9h',         -- n: request history
+                record = '<leader>9r',          -- n: re-open last record view
+                logs = '<leader>9l',            -- n: view logs
+            },
+        },
+    },
+
+    -- rendered markdown (headings, bullets, code-block borders); picks up
+    -- the agent99 chat panel automatically since it is a markdown buffer
+    'MeanderingProgrammer/render-markdown.nvim',
 }, {
     change_detection = { notify = false },
     performance = {

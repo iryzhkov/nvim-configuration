@@ -35,7 +35,8 @@ echo "nvim $nvim_version"
 
 # tool -> Arch package. git clones plugins; make/cc build telescope-fzf-native,
 # LuaSnip's jsregexp and tree-sitter parsers; tree-sitter generates parsers
-# that ship no parser.c; rg backs Telescope live_grep; fd backs find_files.
+# that ship no parser.c; rg backs Telescope live_grep; fd backs find_files;
+# clangd is the C/C++ language server (Mason has no aarch64 Linux build).
 declare -A packages=(
   [git]=git
   [make]=make
@@ -43,6 +44,7 @@ declare -A packages=(
   [tree-sitter]=tree-sitter-cli
   [rg]=ripgrep
   [fd]=fd
+  [clangd]=clang
 )
 missing=()
 for tool in "${!packages[@]}"; do

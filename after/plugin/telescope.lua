@@ -34,6 +34,6 @@ end, {})
 vim.keymap.set('n', '<leader>nv', function()
     builtin.find_files({
         prompt_title = "NVim Config",
-        cwd = "~/.config/nvim/",
+        cwd = vim.fn.stdpath("config"),
     })
 end, {})

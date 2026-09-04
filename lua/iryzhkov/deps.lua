@@ -6,16 +6,30 @@ return {
     -- nvim-treesitter parser names (after/plugin/treesitter.lua)
     parsers = {
         "bash",
+        "c",
+        "cpp",
+        "diff",
+        "go",
+        "gomod",
+        "javascript",
+        "jsdoc",
         "lua",
         "markdown",
         "markdown_inline",
         "python",
+        "tsx",
+        "typescript",
         "vimdoc",
     },
 
     -- Mason package names (after/plugin/lsp.lua; mason-lspconfig enables
-    -- every installed server automatically)
+    -- every installed server automatically). clangd is not here: Mason has
+    -- no aarch64 Linux build, so it comes from the system `clang` package
+    -- and lsp.lua enables it by hand.
     mason = {
+        "gopls",
         "lua-language-server",
+        "pyright",
+        "typescript-language-server",
     },
 }
