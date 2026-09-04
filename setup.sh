@@ -117,6 +117,26 @@ if command -v claude >/dev/null; then
   else
     claude mcp add --scope user agent99 -- "$bridge" mcp
   fi
+  # Mark the server's tools as always loaded. Without this they are deferred
+  # behind a tool-search lookup, and an agent that has to take a detour to
+  # reach them reliably reaches for grep and sed instead - which defeats the
+  # point of registering the server at all. `claude mcp add` has no flag for
+  # it, so the key goes in directly; other servers stay deferred.
+  config="$HOME/.claude.json"
+  if command -v jq >/dev/null && [[ -s $config ]]; then
+    if [[ $(jq -r '.mcpServers.agent99.alwaysLoad // false' "$config") == true ]]; then
+      echo "already always-loaded"
+    else
+      tmp=$(mktemp)
+      if jq '.mcpServers.agent99.alwaysLoad = true' "$config" >"$tmp" && [[ -s $tmp ]]; then
+        mv "$tmp" "$config"
+        echo "marked agent99 tools as always loaded"
+      else
+        rm -f "$tmp"
+        echo "could not set alwaysLoad; agent99 tools stay behind tool search" >&2
+      fi
+    fi
+  fi
 fi
 
 if [[ -d $HOME/.config/omarchy/hooks ]]; then
