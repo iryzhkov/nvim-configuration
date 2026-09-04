@@ -35,8 +35,9 @@ echo "nvim $nvim_version"
 
 # tool -> Arch package. git clones plugins; make/cc build telescope-fzf-native,
 # LuaSnip's jsregexp and tree-sitter parsers; tree-sitter generates parsers
-# that ship no parser.c; rg backs Telescope live_grep; fd backs find_files;
-# clangd is the C/C++ language server (Mason has no aarch64 Linux build).
+# that ship no parser.c; rg backs Telescope live_grep and agent99's grep; fd
+# backs find_files; go builds agent99's bridge binary; clangd is the C/C++
+# language server (Mason has no aarch64 Linux build).
 declare -A packages=(
   [git]=git
   [make]=make
@@ -45,6 +46,7 @@ declare -A packages=(
   [rg]=ripgrep
   [fd]=fd
   [clangd]=clang
+  [go]=go
 )
 missing=()
 for tool in "${!packages[@]}"; do
@@ -99,6 +101,23 @@ headless +'lua
   vim.cmd.qa()
 '
 echo
+
+# agent99's bridge is also an MCP server, which lets Claude Code drive this
+# Neovim and its language servers from outside the editor. Registering it is
+# per-user rather than per-project, and re-registering is not idempotent, so
+# only add it when it is not already there.
+if command -v claude >/dev/null; then
+  log "Registering agent99 as a Claude Code MCP server"
+  bridge="$(nvim --headless --cmd 'let g:nvim_setup = 1' \
+    +'lua io.write(vim.fn.stdpath("data") .. "/lazy/agent99/bin/agent99-bridge")' +qa 2>/dev/null)"
+  if [[ ! -x $bridge ]]; then
+    echo "agent99 bridge not built at $bridge; skipping"
+  elif claude mcp list 2>/dev/null | grep -q '^agent99:'; then
+    echo "already registered"
+  else
+    claude mcp add --scope user agent99 -- "$bridge" mcp
+  fi
+fi
 
 if [[ -d $HOME/.config/omarchy/hooks ]]; then
   log "Linking Omarchy theme-set hook"

@@ -81,6 +81,9 @@ require("lazy").setup({
     -- agent99: agentic edits with LSP-backed tools (github.com/iryzhkov/agent99).
     -- Keymaps live in opts.keymaps so they are easy to look up here;
     -- provider presets: deepseek (default), openai, openrouter, ollama, claude.
+    -- The build step also produces bin/agent99-bridge, which is the MCP
+    -- server other agents (Claude Code) use to reach this Neovim; setup.sh
+    -- registers it.
     {
         'iryzhkov/agent99',
         build = 'make build',
