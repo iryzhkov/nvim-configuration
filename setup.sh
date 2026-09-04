@@ -122,7 +122,7 @@ if command -v claude >/dev/null; then
       echo "re-registering with the debugger tools enabled"
       claude mcp remove --scope user agent99 >/dev/null
     fi
-    claude mcp add --scope user -e AGENT99_DEBUG=1 agent99 -- "$bridge" mcp
+    claude mcp add --scope user agent99 -e AGENT99_DEBUG=1 -- "$bridge" mcp
   fi
   # Mark the server's tools as always loaded. Without this they are deferred
   # behind a tool-search lookup, and an agent that has to take a detour to
