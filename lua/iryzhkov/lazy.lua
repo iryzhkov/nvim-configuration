@@ -87,7 +87,11 @@ require("lazy").setup({
     {
         'iryzhkov/agent99',
         build = 'make build',
+        -- nvim-dap backs agent99's debugger tools (debug_launch, ...); the
+        -- MCP server advertises them only with debug.enabled below.
+        dependencies = { 'mfussenegger/nvim-dap' },
         opts = {
+            debug = { enabled = true },
             -- claude runs on the Max subscription (no per-token cost); the chat
             -- panel cannot use it (no transcript from claude -p) and falls back
             -- to chat_provider automatically (deepseek key: keyring, :Agent99SetKey).

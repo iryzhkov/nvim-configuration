@@ -52,5 +52,12 @@ return {
         "lua-language-server",
         "pyright",
         "typescript-language-server",
+        -- Debug adapters for agent99's debugger tools, one per language
+        -- served above (Go, Python, JavaScript/TypeScript); C/C++ use the
+        -- system gdb, and Java's jdtls + java-debug-adapter stay on demand
+        -- through install_debugger() because they need a JDK.
+        "delve",
+        "debugpy",
+        "js-debug-adapter",
     },
 }
