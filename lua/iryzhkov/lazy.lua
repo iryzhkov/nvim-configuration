@@ -77,6 +77,11 @@ require("lazy").setup({
     -- version control
     'tpope/vim-fugitive',
     'mbbill/undotree',
+
+    -- agentic edits and code questions, backed by the LSP clients running
+    -- here. `make build` produces bin/agent99-bridge, which doubles as the
+    -- MCP server other agents (Claude Code) use to reach this Neovim.
+    { 'iryzhkov/agent99', build = 'make build', opts = {} },
 }, {
     change_detection = { notify = false },
     performance = {
