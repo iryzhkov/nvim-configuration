@@ -81,6 +81,46 @@ if vim.fn.executable('clangd') == 1 then
     vim.lsp.enable('clangd')
 end
 
+-- qmlls also ships with Qt itself rather than with Mason, and Qt installs it
+-- in a directory that is not on PATH, so it is resolved by hand as well.
+-- Without this, editing the omarchy-* QML plugins gets a tree-sitter outline
+-- and no diagnostics at all.
+local qmlls = vim.fn.exepath('qmlls')
+if qmlls == '' then
+    for _, candidate in ipairs({
+        '/usr/lib/qt6/bin/qmlls',
+        '/usr/lib64/qt6/bin/qmlls',
+        '/usr/lib/qt6/libexec/qmlls',
+        '/opt/homebrew/share/qt/bin/qmlls',
+    }) do
+        if vim.fn.executable(candidate) == 1 then
+            qmlls = candidate
+            break
+        end
+    end
+end
+
+if qmlls ~= '' then
+    -- -E adds QML_IMPORT_PATH, and ~/.local/share/qml-imports is where this
+    -- machine keeps import roots that live outside the project. An Omarchy
+    -- shell plugin imports `qs.Commons`, whose module root is the shell's own
+    -- source directory, so that directory is symlinked in there as `qs`.
+    -- Without it every Color and Style reference resolves to nothing and the
+    -- real diagnostics drown in unqualified-access noise.
+    local cmd = { qmlls, '-E', '--no-cmake-calls' }
+    local imports = vim.fn.expand('~/.local/share/qml-imports')
+    if vim.fn.isdirectory(imports) == 1 then
+        vim.list_extend(cmd, { '-I', imports })
+    end
+
+    vim.lsp.config('qmlls', {
+        cmd = cmd,
+        -- manifest.json covers an Omarchy plugin edited in place under
+        -- ~/.config/omarchy/plugins/, a plugin root that has no .git.
+        root_markers = { '.qmlls.ini', 'manifest.json', '.git' },
+    })
+    vim.lsp.enable('qmlls')
+end
 -- make sure lua doesn't highlight vim as unknown
 vim.lsp.config('lua_ls', {
     settings = {

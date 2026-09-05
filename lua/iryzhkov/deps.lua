@@ -27,9 +27,10 @@ return {
         "markdown",
         "markdown_inline",
         "python",
-        -- the omarchy-* desktop widgets are QML; no server is listed for it
-        -- because qmlls needs a Qt installation that these machines may not
-        -- have, and the parser alone already carries the symbol tools
+        -- the omarchy-* desktop widgets are QML. No Mason package exists for
+        -- its server: qmlls ships inside a Qt installation, so lsp.lua enables
+        -- it by hand when it finds one, the way it does for clangd. A machine
+        -- without Qt still gets the symbol tools from this parser alone.
         "qmljs",
         "toml",
         -- TypeScript needs both: .tsx files are a separate grammar
