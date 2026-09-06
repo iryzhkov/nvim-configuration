@@ -24,6 +24,10 @@ return {
         "jsdoc",
         "json",
         "lua",
+        -- Makefiles are everywhere and agent99 reads them as structure: a
+        -- target is a symbol whose body is its recipe, a variable is one
+        -- line, and both are editable that way.
+        "make",
         "markdown",
         "markdown_inline",
         "python",
@@ -48,6 +52,9 @@ return {
     -- clangd is deliberately absent: Mason has no aarch64 Linux build, so it
     -- comes from the system `clang` package and lsp.lua enables it by hand.
     mason = {
+        -- Makefiles, automake and configure.ac: the server that goes with
+        -- the make parser above.
+        "autotools-language-server",
         "bash-language-server",
         "gopls",
         "lua-language-server",
