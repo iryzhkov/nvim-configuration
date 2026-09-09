@@ -1,3 +1,5 @@
+if require("iryzhkov.profile").headless then return end
+
 require('lualine').setup({
     options = {
         theme = 'auto',

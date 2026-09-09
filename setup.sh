@@ -9,11 +9,26 @@
 #      lua/iryzhkov/deps.lua.
 #   4. On Omarchy, links the theme-set hook so running instances re-theme
 #      when the desktop theme changes.
+#
+#   --headless   this is a server: only the agent99 MCP server uses Neovim
+#                here, so the interactive plugins (completion, telescope,
+#                colors, ...) are neither installed nor loaded. Writes the
+#                .headless marker that lua/iryzhkov/profile.lua reads; run
+#                once without the flag to turn a machine back into a
+#                workstation (the marker is removed).
 
 set -euo pipefail
 
 CONFIG_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 MIN_NVIM="0.11.7"
+PROFILE=workstation
+for arg in "$@"; do
+  case $arg in
+    --headless) PROFILE=headless ;;
+    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+    *) printf 'unknown option: %s\n' "$arg" >&2; exit 2 ;;
+  esac
+done
 
 log() { printf '\n==> %s\n' "$*"; }
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
@@ -48,6 +63,10 @@ declare -A packages=(
   [clangd]=clang
   [go]=go
 )
+# A headless machine has no Telescope, and C/C++ support is optional there.
+if [[ $PROFILE == headless ]]; then
+  unset 'packages[fd]' 'packages[clangd]'
+fi
 missing=()
 for tool in "${!packages[@]}"; do
   if command -v "$tool" >/dev/null; then
@@ -62,6 +81,14 @@ if (( ${#missing[@]} )); then
     echo "install with: sudo pacman -S --needed ${missing[*]}"
   fi
   die "install the missing tools and re-run"
+fi
+
+log "Profile: $PROFILE"
+if [[ $PROFILE == headless ]]; then
+  printf 'written by setup.sh --headless; see lua/iryzhkov/profile.lua\n' >"$CONFIG_DIR/.headless"
+  echo "$CONFIG_DIR/.headless written: interactive plugins are off"
+else
+  rm -f "$CONFIG_DIR/.headless"
 fi
 
 log "Installing plugins from lazy-lock.json"

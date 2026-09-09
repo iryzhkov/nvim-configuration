@@ -1,3 +1,5 @@
+if require("iryzhkov.profile").headless then return end
+
 require('telescope').setup({
     extensions = {
         fzf = {

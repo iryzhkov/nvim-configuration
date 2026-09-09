@@ -1,1 +1,2 @@
-plugin/packer_compiled.lua
+# written by setup.sh --headless; marks a server profile (see lua/iryzhkov/profile.lua)
+.headless
