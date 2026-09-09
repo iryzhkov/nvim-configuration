@@ -23,8 +23,10 @@ local M = {}
 
 M.path = vim.fn.expand("~/.local/state/omarchy/current/theme/neovim.lua")
 
--- Where Omarchy keeps its themes and where user-added ones go.
+-- Where Omarchy keeps its themes (the package under /usr/share, or the older
+-- checkout under ~/.local/share) and where user-added ones go.
 M.theme_dirs = {
+    "/usr/share/omarchy/themes",
     vim.fn.expand("~/.local/share/omarchy/themes"),
     vim.fn.expand("~/.config/omarchy/themes"),
 }
@@ -86,9 +88,16 @@ function M.plugins()
             end
         end
     end
+    -- aether.nvim is the engine behind every theme that ships only a
+    -- colors.toml: Omarchy generates a neovim.lua that feeds it the colors.
+    -- It is listed here unconditionally so a user theme on one machine does
+    -- not add a lock entry the other machines lack. The spec matches what
+    -- Omarchy generates (name and branch), so the two merge.
+    local extras = { { "bjarneo/aether.nvim", name = "aether", branch = "v3" } }
     -- The current theme may live outside the theme dirs (a one-off written by
     -- hand); make sure its plugins are in the spec too.
-    for _, plugin in ipairs((M.load())) do
+    vim.list_extend(extras, (M.load()))
+    for _, plugin in ipairs(extras) do
         local key = plugin.name or plugin[1]
         if not seen[key] then
             seen[key] = true
