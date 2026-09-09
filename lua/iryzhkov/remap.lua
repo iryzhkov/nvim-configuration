@@ -19,8 +19,6 @@ vim.keymap.set("n", "<C-k>", "<cmd>cprev<CR>")
 vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 
 vim.keymap.set("n", "Q", "<nop>")
--- this should go in the lsp.lua
--- vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
 
 vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/iryzhkov/lazy.lua<CR>");
 
