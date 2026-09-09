@@ -72,54 +72,47 @@ function M.plugins()
     M.colorscheme = colorscheme
 
     local all, seen = {}, {}
+    local function add(plugin, source)
+        plugin.lazy = true
+        plugin.priority = nil -- meaningless on a lazy plugin
+        local key = plugin.name or plugin[1]
+        -- The same repo can appear under several themes (catppuccin and
+        -- catppuccin-latte). lazy.nvim merges duplicate specs, but one entry
+        -- per repo keeps the spec readable in :Lazy.
+        if seen[key] then
+            return
+        end
+        seen[key] = true
+        table.insert(all, plugin)
+        if source then
+            vim.schedule(function()
+                vim.notify(
+                    ("theme plugin %s (from %s) is not in lua/iryzhkov/themes.lua; add it so every host locks it"):format(
+                        key, source),
+                    vim.log.levels.WARN)
+            end)
+        end
+    end
+
+    -- The committed list first: it is what every host shares (see themes.lua).
+    for _, plugin in ipairs(require("iryzhkov.themes")) do
+        add(vim.deepcopy(plugin))
+    end
+    -- Then whatever is installed here, so a theme this list does not know yet
+    -- still works, with a nudge to add it.
     for _, dir in ipairs(M.theme_dirs) do
         for _, file in ipairs(vim.fn.glob(dir .. "/*/neovim.lua", true, true)) do
             for _, plugin in ipairs((read_spec(file))) do
-                plugin.lazy = true
-                plugin.priority = nil -- meaningless on a lazy plugin
-                local key = plugin.name or plugin[1]
-                -- The same repo can appear under several themes (catppuccin
-                -- and catppuccin-latte). lazy.nvim merges duplicate specs,
-                -- but one entry per repo keeps the spec readable in :Lazy.
-                if not seen[key] then
-                    seen[key] = true
-                    table.insert(all, plugin)
-                end
+                add(plugin, file)
             end
         end
     end
-    -- aether.nvim is the engine behind every theme that ships only a
-    -- colors.toml: Omarchy generates a neovim.lua that feeds it the colors.
-    -- It is listed here unconditionally so a user theme on one machine does
-    -- not add a lock entry the other machines lack. The spec matches what
-    -- Omarchy generates (name and branch), so the two merge.
-    local extras = { { "bjarneo/aether.nvim", name = "aether", branch = "v3" } }
     -- The current theme may live outside the theme dirs (a one-off written by
     -- hand); make sure its plugins are in the spec too.
-    vim.list_extend(extras, (M.load()))
-    for _, plugin in ipairs(extras) do
-        local key = plugin.name or plugin[1]
-        if not seen[key] then
-            seen[key] = true
-            plugin.lazy = true
-            plugin.priority = nil
-            table.insert(all, plugin)
-        end
+    for _, plugin in ipairs((M.load())) do
+        add(plugin, M.path)
     end
     return all
-end
-
---- Apply the recorded colorscheme, falling back to the default when there
---- is none or it fails. Returns true when the theme's colorscheme took.
----@return boolean
-function M.apply()
-    if M.colorscheme and pcall(vim.cmd.colorscheme, M.colorscheme) then
-        return true
-    end
-    if not vim.g.colors_name then
-        vim.cmd.colorscheme("default")
-    end
-    return false
 end
 
 --- The Lua module a plugin's setup() lives in, the way lazy.nvim guesses it
@@ -134,14 +127,20 @@ local function main_module(plugin)
     return (name:gsub("[.-]nvim$", ""):gsub("%.lua$", ""))
 end
 
---- Re-read the current theme and apply it to this running instance. Called
---- by the omarchy theme-set hook over --remote-expr. The theme's plugins are
---- already in the spec (see plugins()), so loading them is a local operation;
---- lazy.nvim runs their `opts` setup on load.
+--- Apply the current theme to this instance: load its plugins (already in
+--- the spec, so no network), run their setup with the theme's own `opts`,
+--- then set the colorscheme. Falls back to the default colorscheme when the
+--- theme has none or it fails. Returns true when the theme's colorscheme
+--- took.
+---
+--- The setup step matters because two themes can share a plugin with
+--- different `opts` (every aether-based theme is aether.nvim fed its own
+--- colors) and the spec carries at most one set of opts per plugin.
 ---@return boolean
-function M.reload()
+function M.apply()
     local plugins, colorscheme = M.load()
     M.colorscheme = colorscheme
+
     local ok_lazy, lazy = pcall(require, "lazy")
     if ok_lazy then
         local names = {}
@@ -152,9 +151,6 @@ function M.reload()
             pcall(lazy.load, { plugins = names })
         end
     end
-    -- Two themes can share a plugin with different `opts` (every aether-based
-    -- theme is aether.nvim fed its own colors), and lazy.nvim ran setup with
-    -- whichever theme's opts came first. Re-run it with the current theme's.
     for _, plugin in ipairs(plugins) do
         if type(plugin.opts) == "table" then
             local ok, mod = pcall(require, main_module(plugin))
@@ -163,6 +159,20 @@ function M.reload()
             end
         end
     end
+
+    if colorscheme and pcall(vim.cmd.colorscheme, colorscheme) then
+        return true
+    end
+    if not vim.g.colors_name then
+        vim.cmd.colorscheme("default")
+    end
+    return false
+end
+
+--- Re-read the current theme and apply it to this running instance. Called
+--- by the omarchy theme-set hook over --remote-expr.
+---@return boolean
+function M.reload()
     return M.apply()
 end
 
