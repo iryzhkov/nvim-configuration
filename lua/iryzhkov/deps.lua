@@ -17,9 +17,11 @@ return {
         "c",
         "cpp",
         "diff",
+        "dockerfile",
         "go",
         "gomod",
         "html",
+        "java",
         "javascript",
         "jsdoc",
         "json",
@@ -36,6 +38,7 @@ return {
         -- it by hand when it finds one, the way it does for clangd. A machine
         -- without Qt still gets the symbol tools from this parser alone.
         "qmljs",
+        "rust",
         "toml",
         -- TypeScript needs both: .tsx files are a separate grammar
         "tsx",
@@ -60,6 +63,8 @@ return {
         "lua-language-server",
         "pyright",
         "typescript-language-server",
+        "rust-analyzer",
+        "jdtls",
         -- Debug adapters for agent99's debugger tools, one per language
         -- served above (Go, Python, JavaScript/TypeScript); C/C++ use the
         -- system gdb, and Java's jdtls + java-debug-adapter stay on demand
@@ -67,5 +72,6 @@ return {
         "delve",
         "debugpy",
         "js-debug-adapter",
+        "java-debug-adapter",
     },
 }
