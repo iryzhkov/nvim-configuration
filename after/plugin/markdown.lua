@@ -1,5 +1,4 @@
--- render-markdown.nvim: rendered headings/bullets/code blocks in markdown
--- buffers, including the agent99 chat panel (a nofile markdown buffer).
+-- render-markdown.nvim: rendered headings, bullets, and code blocks in Markdown buffers.
 local ok, rm = pcall(require, "render-markdown")
 if not ok then
     return

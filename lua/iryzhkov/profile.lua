@@ -1,6 +1,6 @@
 -- Which kind of machine this is.
 --
--- "headless": a server whose Neovim exists only so the agent99 MCP server has
+-- "headless": a server whose Neovim exists only so the Huyang MCP server has
 -- tree-sitter and language servers to work with. Everything a human at the
 -- keyboard would want (completion, telescope, statusline, colors, ...) is
 -- disabled: the plugins get `cond = false`, which keeps their lazy-lock.json

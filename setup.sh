@@ -10,7 +10,7 @@
 #   4. On Omarchy, links the theme-set hook so running instances re-theme
 #      when the desktop theme changes.
 #
-#   --headless   this is a server: only the agent99 MCP server uses Neovim
+#   --headless   this is a server: only the Huyang MCP server uses Neovim
 #                here, so the interactive plugins (completion, telescope,
 #                colors, ...) are neither installed nor loaded. Writes the
 #                .headless marker that lua/iryzhkov/profile.lua reads; run
@@ -50,8 +50,8 @@ echo "nvim $nvim_version"
 
 # tool -> Arch package. git clones plugins; make/cc build telescope-fzf-native,
 # LuaSnip's jsregexp and tree-sitter parsers; tree-sitter generates parsers
-# that ship no parser.c; rg backs Telescope live_grep and agent99's grep; fd
-# backs find_files; go builds agent99's bridge binary; clangd is the C/C++
+# that ship no parser.c; rg backs Telescope live_grep and Huyang search; fd
+# backs find_files; Go supports Go development and debugger tooling; clangd is the C/C++
 # language server (Mason has no aarch64 Linux build).
 declare -A packages=(
   [git]=git
@@ -129,49 +129,6 @@ headless +'lua
 '
 echo
 
-# agent99's bridge is also an MCP server, which lets Claude Code drive this
-# Neovim and its language servers from outside the editor. Registering it is
-# per-user rather than per-project, and re-registering is not idempotent, so
-# only add it when it is not already there.
-# AGENT99_DEBUG=1 advertises the debugger tools (debug_launch and friends,
-# backed by nvim-dap); a registration from before that flag existed is
-# replaced so it picks the flag up.
-if command -v claude >/dev/null; then
-  log "Registering agent99 as a Claude Code MCP server"
-  bridge="$(nvim --headless --cmd 'let g:nvim_setup = 1' \
-    +'lua io.write(vim.fn.stdpath("data") .. "/lazy/agent99/bin/agent99-bridge")' +qa 2>/dev/null)"
-  if [[ ! -x $bridge ]]; then
-    echo "agent99 bridge not built at $bridge; skipping"
-  elif claude mcp get agent99 2>/dev/null | grep -q 'AGENT99_DEBUG=1'; then
-    echo "already registered"
-  else
-    if claude mcp list 2>/dev/null | grep -q '^agent99:'; then
-      echo "re-registering with the debugger tools enabled"
-      claude mcp remove --scope user agent99 >/dev/null
-    fi
-    claude mcp add --scope user agent99 -e AGENT99_DEBUG=1 -- "$bridge" mcp
-  fi
-  # Mark the server's tools as always loaded. Without this they are deferred
-  # behind a tool-search lookup, and an agent that has to take a detour to
-  # reach them reliably reaches for grep and sed instead - which defeats the
-  # point of registering the server at all. `claude mcp add` has no flag for
-  # it, so the key goes in directly; other servers stay deferred.
-  config="$HOME/.claude.json"
-  if command -v jq >/dev/null && [[ -s $config ]]; then
-    if [[ $(jq -r '.mcpServers.agent99.alwaysLoad // false' "$config") == true ]]; then
-      echo "already always-loaded"
-    else
-      tmp=$(mktemp)
-      if jq '.mcpServers.agent99.alwaysLoad = true' "$config" >"$tmp" && [[ -s $tmp ]]; then
-        mv "$tmp" "$config"
-        echo "marked agent99 tools as always loaded"
-      else
-        rm -f "$tmp"
-        echo "could not set alwaysLoad; agent99 tools stay behind tool search" >&2
-      fi
-    fi
-  fi
-fi
 
 if [[ -d $HOME/.config/omarchy/hooks ]]; then
   log "Linking Omarchy theme-set hook"

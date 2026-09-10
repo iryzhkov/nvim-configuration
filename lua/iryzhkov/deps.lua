@@ -4,12 +4,10 @@
 -- the same synchronously so a fresh machine is ready after one run.
 --
 -- What belongs here is the languages actually worked in on these machines,
--- because they are also what the agent99 MCP server needs to be useful: its
--- symbol tools read structure from a tree-sitter parser and meaning from a
--- language server, and with neither it degrades to grep. Anything not listed
--- can still be added per-machine at the moment it is needed, with agent99's
--- install_language(); moving a language up here is for the ones that recur
--- often enough to be worth every fresh install paying for them.
+-- because they are also what Huyang's semantic provider needs: Tree-sitter
+-- supplies structure and language servers supply definitions, references, and
+-- diagnostics. Add another language here when it recurs often enough to be
+-- worth every fresh install paying for it.
 return {
     -- nvim-treesitter parser names (after/plugin/treesitter.lua)
     parsers = {
@@ -26,7 +24,7 @@ return {
         "jsdoc",
         "json",
         "lua",
-        -- Makefiles are everywhere and agent99 reads them as structure: a
+        -- Makefiles are everywhere and Huyang reads them as structure: a
         -- target is a symbol whose body is its recipe, a variable is one
         -- line, and both are editable that way.
         "make",
@@ -65,7 +63,7 @@ return {
         "typescript-language-server",
         "rust-analyzer",
         "jdtls",
-        -- Debug adapters for agent99's debugger tools, one per language
+        -- Debug adapters for Huyang's debugger tools, one per language
         -- served above (Go, Python, JavaScript/TypeScript); C/C++ use the
         -- system gdb, and Java's jdtls + java-debug-adapter stay on demand
         -- through install_debugger() because they need a JDK.
